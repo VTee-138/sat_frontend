@@ -137,9 +137,10 @@ export default function PracticeSubmitResultPage() {
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     mb: 1,
+                    lineHeight: "65px",
                   }}
                 >
-                  {message || t("practice.result.submitSuccess")}
+                  {t("practice.result.submitSuccess")}
                 </Typography>
                 <Typography
                   variant="h6"

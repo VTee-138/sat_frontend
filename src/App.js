@@ -18,6 +18,7 @@ import ExamListPage from "./Pages/ExamListPage";
 import LoginPage from "./Pages/LoginPage";
 import HomePage from "./Pages/HomePage";
 import CountdownPage from "./Pages/CountdownPage";
+import CountdownBreakPage from "./Pages/CountdownBreakPage";
 import ExamCompletedPage from "./Pages/ExamCompletedPage";
 import ScoreDetailsPage from "./Pages/ScoreDetailsPage";
 import ScoreDetailResultPage from "./components/score-detail-result";
@@ -41,6 +42,10 @@ const router = createBrowserRouter(
         <Route path="/practice/question-bank" element={<QuestionBankPage />} />
         <Route path="/exam-list" element={<ExamListPage />} />
         <Route path="/countdown/:assessmentId" element={<CountdownPage />} />
+        <Route
+          path="/countdown-break/:assessmentId"
+          element={<CountdownBreakPage />}
+        />
         <Route path="/exam/:id" element={<ExamPage />} />
         <Route path="/exam-bank/" element={<PracticeExam />} />
         <Route path="/countdown-bank/" element={<CountdownPageBank />} />

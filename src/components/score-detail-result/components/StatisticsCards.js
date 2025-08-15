@@ -3,12 +3,33 @@ import { Box, Typography, Card, CardContent } from "@mui/material";
 import { CheckCircle, Cancel, TrendingUp, Quiz } from "@mui/icons-material";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
-export default function StatisticsCards({ data }) {
+export default function StatisticsCards({ data, tab }) {
   const { t } = useLanguage();
 
-  // Tính toán overview
-  const totalQuestions = data.length;
-  const correctAnswers = data.filter((q) => q.isCorrect).length;
+  // Lọc dữ liệu theo tab (giống logic trong index.js)
+  const filteredData = React.useMemo(() => {
+    if (tab === 0) return data;
+
+    if (tab === 1) {
+      const englishData = data.filter(
+        (q) => q.section?.trim().toUpperCase() === "TIẾNG ANH"
+      );
+      return englishData;
+    }
+
+    if (tab === 2) {
+      const mathData = data.filter(
+        (q) => q.section?.trim().toUpperCase() === "TOÁN"
+      );
+      return mathData;
+    }
+
+    return data;
+  }, [data, tab]);
+
+  // Tính toán overview dựa trên dữ liệu đã lọc
+  const totalQuestions = filteredData.length;
+  const correctAnswers = filteredData.filter((q) => q.isCorrect).length;
   const accuracyRate =
     totalQuestions > 0
       ? ((correctAnswers / totalQuestions) * 100).toFixed(1)

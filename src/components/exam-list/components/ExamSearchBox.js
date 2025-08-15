@@ -31,11 +31,11 @@ const ExamSearchBox = ({ inputValue, loading, onInputChange }) => {
               <Search sx={{ color: "#666" }} />
             </InputAdornment>
           ),
-          endAdornment: loading ? (
-            <InputAdornment position="end">
-              <CircularProgress color="inherit" size={20} />
-            </InputAdornment>
-          ) : null,
+          // endAdornment: loading ? (
+          //   <InputAdornment position="end">
+          //     <CircularProgress color="inherit" size={20} />
+          //   </InputAdornment>
+          // ) : null,
         }}
         sx={{
           "& .MuiOutlinedInput-root": {

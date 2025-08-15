@@ -27,6 +27,8 @@ export const translations = {
       description: "Mô tả",
       color: "Màu sắc",
       questions: "Câu hỏi",
+      english: "Tiếng Anh",
+      math: "Toán",
     },
 
     // Header
@@ -196,8 +198,8 @@ export const translations = {
 
       // Question Navigation Modal
       current: "Hiện tại",
-      unanswered: "Chưa trả lời",
-      answered: "Đã trả lời",
+      unansweredNav: "Chưa trả lời",
+      answeredNav: "Đã trả lời",
       forReview: "Cần xem lại",
 
       // Uncompleted Questions Modal
@@ -214,12 +216,12 @@ export const translations = {
       submitFinalAnswer: "Nộp bài",
 
       // Exam Transition
-      examCompleted: "Đã hoàn thành đề thi!",
+      examCompletedTransition: "Đã hoàn thành đề thi!",
       submittedSuccessfully: "Nộp bài thành công",
-      nextExam: "Đề thi tiếp theo",
+      nextExamTransition: "Đề thi tiếp theo",
       preparingNextExam: "Đang chuẩn bị đề thi tiếp theo...",
       startingIn: "Bắt đầu trong",
-      seconds: "giây",
+      secondsTransition: "giây",
       keepGoing: "Tiếp tục cố gắng! Bạn đang làm rất tốt!",
       difficult: "Khó",
       easy: "Dễ",
@@ -277,6 +279,10 @@ export const translations = {
       minutes: "Phút",
       exam: "Kỳ thi",
       takeTestNow: "LÀM BÀI NGAY →",
+
+      // Load More
+      loadMore: "Tải thêm",
+      loading: "Đang tải...",
     },
 
     // Vocabulary Manager
@@ -377,6 +383,21 @@ export const translations = {
         '"Thành công không phải là kết thúc, thất bại không phải là tận cùng: điều quan trọng là lòng dũng cảm để tiếp tục."',
     },
 
+    // Countdown Break
+    countdownBreak: {
+      congratulations: "Chúc mừng!",
+      completedSubject: "Bạn đã hoàn thành phần thi {subject}",
+      breakTime: "Thời gian nghỉ: {time}",
+      minutes: "phút",
+      nextSubject: "Tiếp theo: Phần thi {subject}",
+      restMessage: "Hãy nghỉ ngơi và chuẩn bị tinh thần cho phần thi tiếp theo",
+      continueButton: "Tiếp tục thi {subject}",
+      tips: "💡 Mẹo: Hãy thư giãn, uống nước và chuẩn bị tinh thần tốt nhất!",
+      pauseButton: "Tạm dừng",
+      resumeButton: "Tiếp tục",
+      paused: "Đã tạm dừng",
+    },
+
     // Loading
     loading: {
       pleaseWait: "Vui lòng đợi...",
@@ -426,6 +447,25 @@ export const translations = {
       notes: "Ghi chú",
       enterNotes: "Nhập ghi chú của bạn...",
       noNotesYet: "Chưa có ghi chú nào.",
+
+      // Practice Review Modal
+      questionContent: "Nội dung câu hỏi",
+      answerOptions: "Các lựa chọn trả lời",
+      correctAnswerLabel: "Đáp án đúng",
+      yourAnswerLabel: "Đáp án của bạn",
+      reviewStatus: "Trạng thái xem lại",
+      needsReview: "Cần xem lại",
+      reviewedStatus: "Đã xem lại",
+      addNote: "Thêm ghi chú",
+      editNote: "Chỉnh sửa ghi chú",
+      saveNote: "Lưu ghi chú",
+      cancelEdit: "Hủy chỉnh sửa",
+      notePlaceholder: "Nhập ghi chú của bạn về câu hỏi này...",
+      noNotesYetModal: "Chưa có ghi chú nào.",
+      statusUpdatedSuccess: "Cập nhật trạng thái thành công!",
+      statusUpdateError: "Có lỗi xảy ra khi cập nhật trạng thái",
+      noteUpdatedSuccess: "Ghi chú đã được cập nhật!",
+      noteUpdateError: "Có lỗi xảy ra khi cập nhật ghi chú",
 
       // Practice Type Buttons
       practiceByType: "Luyện tập theo dạng bài",
@@ -497,6 +537,33 @@ export const translations = {
       // Question types
       TN: "Trắc nghiệm",
       TLN: "Tự luận",
+      // Custom Test
+      createCustomTest: "Tạo đề thi tùy chỉnh",
+      customTestModal: {
+        title: "Tạo đề thi tùy chỉnh của bạn",
+        createTestTab: "Tạo đề",
+        randomTestTab: "Tạo đề ngẫu nhiên",
+        subject: "Môn thi",
+        selectSubject: "Chọn môn thi",
+        readingWriting: "Reading & Writing",
+        math: "Math",
+        questionType: "Dạng bài",
+        selectQuestionType: "Chọn dạng bài",
+        questionCount: "Số câu hỏi",
+        difficulty: "Mức độ",
+        selectDifficulty: "Chọn mức độ",
+        addItem: "Thêm dạng bài",
+        removeItem: "Xóa",
+        randomQuestionCount: "Số lượng câu hỏi",
+        createTest: "Tạo đề thi",
+        questionCountPlaceholder: "Nhập số câu hỏi",
+        randomQuestionCountPlaceholder: "Nhập tổng số câu hỏi",
+        pleaseAddValidItems: "Vui lòng thêm ít nhất một dạng bài hợp lệ",
+        pleaseEnterValidQuestionCount: "Vui lòng nhập số lượng câu hỏi hợp lệ",
+        testCreatedSuccess: "Tạo đề thi thành công!",
+        pleaseFillAllFields: "Vui lòng điền đầy đủ các trường bắt buộc",
+        fieldRequired: "Trường này là bắt buộc",
+      },
     },
 
     // Error Messages
@@ -540,6 +607,8 @@ export const translations = {
       description: "Description",
       color: "Color",
       questions: "Questions",
+      english: "English",
+      math: "Math",
     },
 
     // Header
@@ -708,8 +777,8 @@ export const translations = {
 
       // Question Navigation Modal
       current: "Current",
-      unanswered: "Unanswered",
-      answered: "Answered",
+      unansweredNav: "Unanswered",
+      answeredNav: "Answered",
       forReview: "For Review",
 
       // Uncompleted Questions Modal
@@ -726,12 +795,12 @@ export const translations = {
       submitFinalAnswer: "Submit",
 
       // Exam Transition
-      examCompleted: "Exam Completed!",
+      examCompletedTransition: "Exam Completed!",
       submittedSuccessfully: "Submitted Successfully",
-      nextExam: "Next Exam",
+      nextExamTransition: "Next Exam",
       preparingNextExam: "Preparing next exam...",
       startingIn: "Starting in",
-      seconds: "seconds",
+      secondsTransition: "seconds",
       keepGoing: "Keep going! You're doing great!",
       difficult: "Difficult",
       easy: "Easy",
@@ -789,6 +858,10 @@ export const translations = {
       minutes: "Minutes",
       exam: "Exam",
       takeTestNow: "TAKE TEST NOW →",
+
+      // Load More
+      loadMore: "Load More",
+      loading: "Loading...",
     },
 
     // Vocabulary Manager
@@ -890,6 +963,21 @@ export const translations = {
         '"Success is not final, failure is not fatal: it is the courage to continue that counts."',
     },
 
+    // Countdown Break
+    countdownBreak: {
+      congratulations: "Congratulations!",
+      completedSubject: "You have completed the {subject} section",
+      breakTime: "Break time: {time}",
+      minutes: "minutes",
+      nextSubject: "Next: {subject} section",
+      restMessage: "Take a rest and prepare yourself for the next section",
+      continueButton: "Continue to {subject}",
+      tips: "💡 Tip: Relax, drink water, and prepare yourself for the best performance!",
+      pauseButton: "Pause",
+      resumeButton: "Resume",
+      paused: "Paused",
+    },
+
     // Loading
     loading: {
       pleaseWait: "Please wait...",
@@ -939,6 +1027,25 @@ export const translations = {
       notes: "Notes",
       enterNotes: "Enter your notes...",
       noNotesYet: "No notes yet.",
+
+      // Practice Review Modal
+      questionContent: "Question Content",
+      answerOptions: "Answer Options",
+      correctAnswerLabel: "Correct Answer",
+      yourAnswerLabel: "Your Answer",
+      reviewStatus: "Review Status",
+      needsReview: "Needs Review",
+      reviewedStatus: "Reviewed",
+      addNote: "Add Note",
+      editNote: "Edit Note",
+      saveNote: "Save Note",
+      cancelEdit: "Cancel Edit",
+      notePlaceholder: "Enter your notes about this question...",
+      noNotesYetModal: "No notes yet.",
+      statusUpdatedSuccess: "Status updated successfully!",
+      statusUpdateError: "Error updating status",
+      noteUpdatedSuccess: "Note updated successfully!",
+      noteUpdateError: "Error updating note",
 
       // Practice Type Buttons
       practiceByType: "Practice by Type",
@@ -1010,6 +1117,33 @@ export const translations = {
       // Question types
       TN: "Multiple Choice",
       TLN: "Free Response",
+      // Custom Test
+      createCustomTest: "Create your custom Test",
+      customTestModal: {
+        title: "Create your custom Test",
+        createTestTab: "Create Test",
+        randomTestTab: "Random Test",
+        subject: "Subject",
+        selectSubject: "Select Subject",
+        readingWriting: "Reading & Writing",
+        math: "Math",
+        questionType: "Question Type",
+        selectQuestionType: "Select Question Type",
+        questionCount: "Question Count",
+        difficulty: "Difficulty",
+        selectDifficulty: "Select Difficulty",
+        addItem: "Add Question Type",
+        removeItem: "Remove",
+        randomQuestionCount: "Question Count",
+        createTest: "Create Test",
+        questionCountPlaceholder: "Enter question count",
+        randomQuestionCountPlaceholder: "Enter total question count",
+        pleaseAddValidItems: "Please add at least one valid question type",
+        pleaseEnterValidQuestionCount: "Please enter a valid question count",
+        testCreatedSuccess: "Test created successfully!",
+        pleaseFillAllFields: "Please fill in all required fields",
+        fieldRequired: "This field is required",
+      },
     },
 
     // Error Messages

@@ -22,6 +22,7 @@ import ExamTransition from "./components/ExamTransition";
 import {
   useParams,
   useNavigate,
+  useLocation,
   UNSAFE_NavigationContext,
 } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -52,6 +53,7 @@ function getRandomColorBar() {
 export default function ExamPage() {
   const { t } = useLanguage();
   const { id } = useParams();
+  const location = useLocation();
   const [questions, setQuestions] = useState([]);
   const [decryptedData, setDecryptedData] = useState(null);
   const [current, setCurrent] = useState(() => {
@@ -121,9 +123,9 @@ export default function ExamPage() {
     return Math.floor((currentTime - parseInt(startTime)) / 1000);
   };
 
-  const getElapsedTimeInMinutes = () => {
-    return Math.floor(getElapsedTimeFromStart() / 60);
-  };
+  // const getElapsedTimeInMinutes = () => {
+  //   return Math.floor(getElapsedTimeFromStart() / 60);
+  // };
 
   const formatTime = (sec) => {
     const m = String(Math.floor(sec / 60)).padStart(2, "0");
@@ -131,7 +133,7 @@ export default function ExamPage() {
     return `${m}:${s}`;
   };
 
-  const calculateRemainingTime = () => {
+  const calculateRemainingTime = useCallback(() => {
     const startTime = localStorage.getItem("exam_start_time");
     if (!startTime || !decryptedData) return 0;
 
@@ -152,9 +154,9 @@ export default function ExamPage() {
     const totalTimeInSeconds = totalTime * 60;
     const elapsedTimeInSeconds = getElapsedTimeFromStart();
     return Math.max(0, totalTimeInSeconds - elapsedTimeInSeconds);
-  };
+  }, [decryptedData, currentSubject, currentModule]);
 
-  const initializeExamTime = () => {
+  const initializeExamTime = useCallback(() => {
     if (!decryptedData) {
       return;
     }
@@ -188,7 +190,7 @@ export default function ExamPage() {
     } else {
       setExamTime(totalTimeInSeconds);
     }
-  };
+  }, [decryptedData, currentSubject, currentModule, calculateRemainingTime]);
 
   // ============ EXAM SELECTION HELPER FUNCTIONS ============
   const findExamBySubjectAndModule = (subject, module) => {
@@ -203,39 +205,38 @@ export default function ExamPage() {
     return foundExam;
   };
 
-  const getNextSubjectAndModule = (
-    currentSubject,
-    currentModule,
-    isDifficulty
-  ) => {
-    if (currentSubject === "TIẾNG ANH") {
-      if (currentModule === "MODULE 1") {
-        // Sau TIẾNG ANH MODULE 1, chuyển sang MODULE 2 (dễ/khó)
-        return {
-          subject: "TIẾNG ANH",
-          module: isDifficulty ? "MODULE 2-DIFFICULT" : "MODULE 2-EASY",
-        };
-      } else {
-        // Sau TIẾNG ANH MODULE 2, chuyển sang TOÁN MODULE 1
-        return {
-          subject: "TOÁN",
-          module: "MODULE 1",
-        };
+  const getNextSubjectAndModule = useCallback(
+    (currentSubject, currentModule, isDifficulty) => {
+      if (currentSubject === "TIẾNG ANH") {
+        if (currentModule === "MODULE 1") {
+          // Sau TIẾNG ANH MODULE 1, chuyển sang MODULE 2 (dễ/khó)
+          return {
+            subject: "TIẾNG ANH",
+            module: isDifficulty ? "MODULE 2-DIFFICULT" : "MODULE 2-EASY",
+          };
+        } else {
+          // Sau TIẾNG ANH MODULE 2, chuyển sang TOÁN MODULE 1
+          return {
+            subject: "TOÁN",
+            module: "MODULE 1",
+          };
+        }
+      } else if (currentSubject === "TOÁN") {
+        if (currentModule === "MODULE 1") {
+          // Sau TOÁN MODULE 1, chuyển sang MODULE 2 (dễ/khó)
+          return {
+            subject: "TOÁN",
+            module: isDifficulty ? "MODULE 2-DIFFICULT" : "MODULE 2-EASY",
+          };
+        } else {
+          // Sau TOÁN MODULE 2, không còn đề nào nữa
+          return null;
+        }
       }
-    } else if (currentSubject === "TOÁN") {
-      if (currentModule === "MODULE 1") {
-        // Sau TOÁN MODULE 1, chuyển sang MODULE 2 (dễ/khó)
-        return {
-          subject: "TOÁN",
-          module: isDifficulty ? "MODULE 2-DIFFICULT" : "MODULE 2-EASY",
-        };
-      } else {
-        // Sau TOÁN MODULE 2, không còn đề nào nữa
-        return null;
-      }
-    }
-    return null;
-  };
+      return null;
+    },
+    []
+  );
 
   // ============ LOCAL STORAGE HELPER FUNCTIONS ============
   const loadFromLocalStorage = () => {
@@ -383,7 +384,7 @@ export default function ExamPage() {
   };
 
   // ============ EXAM FLOW FUNCTIONS ============
-  const hasMoreExams = () => {
+  const hasMoreExams = useCallback(() => {
     // Check if there are more exams based on subject/module flow
     if (currentSubject === "TIẾNG ANH") {
       if (currentModule === "MODULE 1") {
@@ -403,16 +404,21 @@ export default function ExamPage() {
       }
     }
     return false;
-  };
+  }, [currentSubject, currentModule]);
 
-  const prepareSubmissionData = () => {
+  const prepareSubmissionData = useCallback(() => {
     const result = {};
     questions.forEach((q, idx) => {
       const key = q.question;
       if (q.type === "TLN") {
         const val = answers[idx];
         if (val !== undefined && val !== null && val !== "") {
-          const num = Number(val);
+          let num = "";
+          if (val.startsWith(".")) {
+            num = val;
+          } else {
+            num = Number(val);
+          }
           result[key] = !isNaN(num) && val !== "" ? num : val;
         } else {
           result[key] = "";
@@ -422,7 +428,7 @@ export default function ExamPage() {
       }
     });
     return result;
-  };
+  }, [questions, answers]);
 
   const handleNextExam = (isDifficulty = false) => {
     // Get next subject and module based on current state and difficulty
@@ -470,7 +476,7 @@ export default function ExamPage() {
     return true;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (isSubmitting) return; // Prevent double submission
 
     try {
@@ -514,6 +520,11 @@ export default function ExamPage() {
         //   "Câu 20": 0.5,
         //   "Câu 21": "C",
         //   "Câu 22": "C",
+        //   "Câu 23": "C",
+        //   "Câu 24": "C",
+        //   "Câu 25": "C",
+        //   "Câu 26": "C",
+        //   "Câu 27": "C",
         // },
         // examCompledTime: elapsedMinutes,
         // examId: currentExamId,
@@ -535,16 +546,38 @@ export default function ExamPage() {
         );
 
         if (nextSubjectModule) {
-          // Show transition screen
-          setNextExamInfo({
-            currentSubject,
-            currentModule,
-            nextSubject: nextSubjectModule.subject,
-            nextModule: nextSubjectModule.module,
-            isDifficulty,
-          });
-          setShowTransition(true);
-          return;
+          // Check if transitioning from English MODULE 2 to Math MODULE 1 - need break
+          if (
+            currentSubject === "TIẾNG ANH" &&
+            (currentModule === "MODULE 2-EASY" ||
+              currentModule === "MODULE 2-DIFFICULT") &&
+            nextSubjectModule.subject === "TOÁN" &&
+            nextSubjectModule.module === "MODULE 1"
+          ) {
+            // Clear exam data and navigate to break page
+            clearExamLocalStorage();
+            localStorage.removeItem("exam_start_time");
+            setIsSubmitted(true);
+
+            navigate(`/countdown-break/${assessmentId}`, {
+              state: {
+                fromSubject: "TIẾNG ANH",
+                toSubject: "TOÁN",
+              },
+            });
+            return;
+          } else {
+            // Show transition screen for other transitions (within same subject or Math modules)
+            setNextExamInfo({
+              currentSubject,
+              currentModule,
+              nextSubject: nextSubjectModule.subject,
+              nextModule: nextSubjectModule.module,
+              isDifficulty,
+            });
+            setShowTransition(true);
+            return;
+          }
         }
       }
 
@@ -566,7 +599,17 @@ export default function ExamPage() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [
+    isSubmitting,
+    prepareSubmissionData,
+    id,
+    currentExamId,
+    hasMoreExams,
+    currentSubject,
+    currentModule,
+    getNextSubjectAndModule,
+    navigate,
+  ]);
 
   const handleTransitionComplete = () => {
     if (nextExamInfo) {
@@ -678,6 +721,19 @@ export default function ExamPage() {
     fetchExamData();
   }, [fetchExamData]);
 
+  // Separate effect for handling location state to avoid affecting fetchExamData dependencies
+  useEffect(() => {
+    const state = location?.state;
+    if (state?.continueToMath && state?.fromBreak) {
+      // Set up for Math exam with proper module
+      setCurrentSubject("TOÁN");
+      setCurrentModule("MODULE 1"); // Always start with MODULE 1 for Math after break
+
+      // Clear any location state to prevent re-triggering
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location?.state]);
+
   useEffect(() => {
     initializeExamAnswers();
   }, [initializeExamAnswers]);
@@ -712,14 +768,14 @@ export default function ExamPage() {
       }, 1000);
     }
     return () => clearInterval(timerRef.current);
-  }, [decryptedData]);
+  }, [decryptedData, calculateRemainingTime]);
 
   // Handle time expiration
   useEffect(() => {
     if (timeExpired && !isSubmitted && !isSubmitting) {
       handleSubmit();
     }
-  }, [timeExpired, isSubmitted, isSubmitting]);
+  }, [timeExpired, isSubmitted, isSubmitting, handleSubmit]);
 
   // Khôi phục dữ liệu từ localStorage khi component mount (except examTime - handled in decryptedData effect)
   useEffect(() => {
@@ -777,7 +833,7 @@ export default function ExamPage() {
 
   useEffect(() => {
     initializeExamTime();
-  }, [decryptedData]);
+  }, [decryptedData, initializeExamTime]);
 
   // ============ NAVIGATION BLOCKER ============
   function useBlocker(when = true) {
@@ -796,7 +852,7 @@ export default function ExamPage() {
       return () => {
         navigator.push = push;
       };
-    }, [when, navigator, isSubmitted]);
+    }, [when, navigator]);
   }
   useBlocker(!isSubmitted);
 

@@ -7,10 +7,8 @@ import {
   Box,
   Chip,
   LinearProgress,
-  IconButton,
 } from "@mui/material";
 import {
-  Person,
   QuestionAnswer,
   Schedule,
   CheckCircle,
@@ -56,16 +54,28 @@ export default function CompletedExamCard({ assessment, onCardClick }) {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        cursor: "pointer",
+        cursor:
+          assessment.numberOfExamsCompleted == assessment.numberOfTotalExams
+            ? "pointer"
+            : "not-allowed",
         transition: "all 0.3s ease-in-out",
         border: "1px solid #e0e0e0",
-        "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
-          borderColor: "#2563eb",
-        },
+        ...(assessment.numberOfExamsCompleted ===
+          assessment.numberOfTotalExams && {
+          "&:hover": {
+            transform: "translateY(-4px)",
+            boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
+            borderColor: "#2563eb",
+          },
+        }),
       }}
-      onClick={() => onCardClick(assessment)}
+      onClick={() => {
+        if (
+          assessment.numberOfExamsCompleted == assessment.numberOfTotalExams
+        ) {
+          onCardClick(assessment);
+        }
+      }}
     >
       {/* Header with Image */}
       <Box sx={{ position: "relative" }}>
@@ -307,7 +317,11 @@ export default function CompletedExamCard({ assessment, onCardClick }) {
           <Typography
             variant="body2"
             sx={{
-              color: "#2563eb",
+              color:
+                assessment.numberOfExamsCompleted ==
+                assessment.numberOfTotalExams
+                  ? "#2563eb"
+                  : "#999",
               fontWeight: 600,
               display: "flex",
               alignItems: "center",

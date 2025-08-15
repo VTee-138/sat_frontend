@@ -54,6 +54,9 @@ const getQuestions = async (page = 1, limit = 10, filters = {}) => {
 
   return await get(PATH_QUESTION_BANK + `?${params.toString()}`);
 };
+const getQuestionTypes = async (subject) => {
+  return await get(PATH_QUESTION_BANK + `/types?subject=${subject}`);
+};
 
 /**
  * Tìm kiếm câu hỏi nâng cao
@@ -338,4 +341,5 @@ export {
   convertQuestionTypeCodeToText,
   getAllQuestionsByCategory,
   getAllQuestionsByType,
+  getQuestionTypes,
 };

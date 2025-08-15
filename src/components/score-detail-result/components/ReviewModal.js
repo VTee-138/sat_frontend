@@ -275,8 +275,13 @@ export default function ReviewModal({
                         fontWeight={
                           questionData?.yourAnswer === "A" ? 600 : 400
                         }
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
                       >
-                        A.{" "}
+                        A.
                         <MathRenderer
                           content={questionData?.question.contentAnswerA}
                         />
@@ -307,8 +312,16 @@ export default function ReviewModal({
                         fontWeight={
                           questionData?.yourAnswer === "B" ? 600 : 400
                         }
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
                       >
-                        B. {questionData?.question.contentAnswerB}
+                        B.
+                        <MathRenderer
+                          content={questionData?.question.contentAnswerB}
+                        />
                       </Typography>
                     </Box>
                   )}
@@ -336,8 +349,16 @@ export default function ReviewModal({
                         fontWeight={
                           questionData?.yourAnswer === "C" ? 600 : 400
                         }
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
                       >
-                        C. {questionData?.question.contentAnswerC}
+                        C.
+                        <MathRenderer
+                          content={questionData?.question.contentAnswerC}
+                        />
                       </Typography>
                     </Box>
                   )}
@@ -365,8 +386,16 @@ export default function ReviewModal({
                         fontWeight={
                           questionData?.yourAnswer === "D" ? 600 : 400
                         }
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
                       >
-                        D. {questionData?.question.contentAnswerD}
+                        D.
+                        <MathRenderer
+                          content={questionData?.question.contentAnswerD}
+                        />
                       </Typography>
                     </Box>
                   )}
@@ -442,8 +471,8 @@ export default function ReviewModal({
 
           {/* Explanation section */}
           {questionData.question?.explanation && (
-            <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg mb-6">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">
+            <div className="p-4 mt-6 mb-6 border-l-4 border-blue-500 rounded-lg bg-blue-50">
+              <h3 className="mb-2 text-lg font-semibold text-blue-800">
                 📝 Explanation:
               </h3>
               <div className="text-gray-700 text-[16px]">

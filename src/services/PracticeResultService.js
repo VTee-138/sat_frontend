@@ -69,6 +69,9 @@ const practiceAllIncorrect = async (params) => {
 const getUserPracticeStats = async () => {
   return await get(PATH_PRACTICE_RESULT + "/stats");
 };
+const updatePracticeNote = async (params) => {
+  return await put(PATH_PRACTICE_RESULT + "/update-note", params);
+};
 
 /**
  * Lấy thống kê theo môn học
@@ -106,20 +109,8 @@ const getPracticeStatsByType = async (subject) => {
  * @param {string} filters.difficulty - "EASY" | "MEDIUM" | "HARD" (optional)
  * @returns {Promise} Response từ server với danh sách câu hỏi sai
  */
-const getIncorrectQuestions = async (filters = {}) => {
-  const { page = 1, limit = 20, subject, questionType, difficulty } = filters;
-
-  const params = new URLSearchParams();
-  params.append("page", page);
-  params.append("limit", limit);
-
-  if (subject) params.append("subject", subject);
-  if (questionType) params.append("questionType", questionType);
-  if (difficulty) params.append("difficulty", difficulty);
-
-  return await get(
-    PATH_PRACTICE_RESULT + `/incorrect-questions?${params.toString()}`
-  );
+const getIncorrectQuestions = async () => {
+  return await get(PATH_PRACTICE_RESULT + `/incorrect-questions`);
 };
 
 // =================== PRACTICE HISTORY ===================
@@ -372,4 +363,5 @@ export {
   getIncorrectResults,
   getCorrectResults,
   getPracticeSummary,
+  updatePracticeNote,
 };

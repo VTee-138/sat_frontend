@@ -163,7 +163,7 @@ export default function ScoreDetailResultPage() {
         </Box>
 
         {/* Statistics Cards */}
-        <StatisticsCards data={data} />
+        <StatisticsCards data={data} tab={tab} />
 
         {/* Main Content Card */}
         <Paper

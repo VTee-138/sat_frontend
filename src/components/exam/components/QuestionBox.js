@@ -213,7 +213,9 @@ export default function QuestionBox({
             onChange={(e) => {
               let val = e.target.value;
               val = val.replace(/,/g, ".");
-              if (/^-?\d*[\.\/]?\d*$/.test(val) || val === "") {
+              // Kiểm tra format và giới hạn 5 số sau dấu thập phân
+              // if (/^-?\d*(?:[\.\/]\d{0,5})?$/.test(val) || val === "") {
+              if (/^-?\d*(?:\.\d{0,5}|\/\d*)?$/.test(val) || val === "") {
                 onAnswer(val);
               }
             }}

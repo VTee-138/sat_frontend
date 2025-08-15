@@ -119,6 +119,8 @@ export default function PracticeExam() {
     localStorage.removeItem("exam_marked");
     localStorage.removeItem("exam_colorBarColors");
     localStorage.removeItem("exam_start_time");
+    // Clear custom exam data
+    localStorage.removeItem("customExamData");
     // Clear highlighted passages
     for (let i = 0; i < questions.length; i++) {
       localStorage.removeItem("highlighted_passage_" + i);
@@ -127,6 +129,46 @@ export default function PracticeExam() {
 
   // ============ PRACTICE DATA FUNCTIONS ============
   const fetchPracticeData = useCallback(async () => {
+    // Check if we have custom exam data first
+    const customExamDataString = localStorage.getItem("customExamData");
+
+    if (customExamDataString) {
+      // Use custom exam data
+      setIsLoading(true);
+      try {
+        const customExamData = JSON.parse(customExamDataString);
+
+        const practiceData = {
+          title: customExamData.title || {
+            text: "Custom Test",
+            code: "",
+          },
+          numberOfQuestions: customExamData.numberOfQuestions || 0,
+          time: customExamData.time || 45, // Use provided time or default 45 minutes
+          questions: customExamData.questions || [],
+          subject: customExamData.subject || "ENGLISH",
+        };
+
+        setPracticeData(practiceData);
+        setPracticeTitle(practiceData.title.text);
+        setQuestions(practiceData.questions || []);
+
+        // Initialize start time
+        const startTime = Date.now();
+        localStorage.setItem("exam_start_time", startTime.toString());
+      } catch (error) {
+        console.error("Failed to parse custom exam data:", error);
+        toast.error("Failed to load custom test data");
+        // Clear invalid custom exam data
+        localStorage.removeItem("customExamData");
+        navigate("/practice/question-bank");
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // Original logic for regular practice
     if (!subject) {
       toast.error("Missing subject parameter");
       return;
@@ -182,7 +224,7 @@ export default function PracticeExam() {
     } finally {
       setIsLoading(false);
     }
-  }, [subject, questionType, parentCategory]);
+  }, [subject, questionType, parentCategory, navigate]);
 
   const initializePracticeAnswers = useCallback(() => {
     if (questions.length > 0) {
@@ -247,7 +289,12 @@ export default function PracticeExam() {
       if (q.type === "TLN") {
         const val = answers[idx];
         if (val !== undefined && val !== null && val !== "") {
-          const num = Number(val);
+          let num = "";
+          if (val.startsWith(".")) {
+            num = val;
+          } else {
+            num = Number(val);
+          }
           result[key] = !isNaN(num) && val !== "" ? num : val;
         } else {
           result[key] = "";
@@ -313,11 +360,15 @@ export default function PracticeExam() {
 
   const handleRequestExit = useCallback(() => {
     if (isSubmitted) {
+      // Clear custom exam data when exiting
+      localStorage.removeItem("customExamData");
       navigate("/practice/question-bank");
     } else {
       setShowLeaveModal(true);
       setPendingNavigation(() => () => {
         setIsSubmitted(true);
+        // Clear custom exam data when exiting
+        localStorage.removeItem("customExamData");
         navigate("/practice/question-bank");
       });
     }
@@ -441,7 +492,11 @@ export default function PracticeExam() {
   useBlocker(!isSubmitted);
 
   useEffect(() => {
-    if (!subject) {
+    // Check if we have custom exam data
+    const customExamDataString = localStorage.getItem("customExamData");
+
+    if (!customExamDataString && !subject) {
+      // No custom data and no subject parameter, redirect
       navigate("/practice/question-bank");
     }
   }, [subject, navigate]);
@@ -464,7 +519,9 @@ export default function PracticeExam() {
       >
         {/* Header (fixed) */}
         <Header
-          currentSubject={subject === "MATH" ? "TOÁN" : "TIẾNG ANH"}
+          currentSubject={
+            practiceData?.subject === "MATH" ? "TOÁN" : "TIẾNG ANH"
+          }
           formatTime={formatTime}
           colorBarColors={colorBarColors}
           isSubmitted={isSubmitted}

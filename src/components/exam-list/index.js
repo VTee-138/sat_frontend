@@ -12,6 +12,7 @@ import ExamCard from "./components/ExamCard";
 import CompletedExamCard from "./components/CompletedExamCard";
 import ExamSearchBox from "./components/ExamSearchBox";
 import ExamPagination from "./components/ExamPagination";
+import LoadMore from "./components/LoadMore";
 
 // CSS Animation cho tab glow effect
 const tabGlowAnimation = `
@@ -40,7 +41,8 @@ export default function ExamListPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [limit] = useState(6);
+  const [limit] = useState(18);
+  const [hasMore, setHasMore] = useState(true);
 
   // Debounce function
   const debounce = useCallback((func, delay) => {
@@ -99,11 +101,15 @@ export default function ExamListPage() {
 
       setTotalItems(totalAssessments);
       setTotalPages(calculatedTotalPages);
+
+      // Check if there are more items to load
+      setHasMore(currentPage < calculatedTotalPages);
     } catch (error) {
       console.error("Error fetching assessments:", error);
       setAssessments([]);
       setTotalItems(0);
       setTotalPages(1);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
@@ -136,11 +142,15 @@ export default function ExamListPage() {
 
       setTotalItems(totalCompletedAssessments);
       setTotalPages(calculatedTotalPages);
+
+      // Check if there are more items to load
+      setHasMore(currentPage < calculatedTotalPages);
     } catch (error) {
       console.error("Error fetching completed assessments:", error);
       setCompletedAssessments([]);
       setTotalItems(0);
       setTotalPages(1);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
@@ -148,11 +158,108 @@ export default function ExamListPage() {
 
   // Debounced fetch function
   const debouncedFetch = useCallback(
-    debounce((query, currentPage, statusData = null) => {
-      fetchAssessments(query, currentPage, statusData);
-    }, 500),
-    [limit]
+    (query, currentPage, statusData = null) => {
+      const debouncedFn = debounce((q, cp, sd) => {
+        fetchAssessments(q, cp, sd);
+      }, 500);
+      debouncedFn(query, currentPage, statusData);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [debounce]
   );
+
+  // Fetch assessments for load more - append to existing data
+  const fetchAssessmentsLoadMore = async (
+    query = "",
+    currentPage = 1,
+    statusData = null
+  ) => {
+    setLoading(true);
+    try {
+      const response = await getAssessments(currentPage, limit, query);
+      const data = response.data || [];
+
+      const statusToUse = statusData || completionStatus;
+
+      const assessmentsWithStatus = data.map((assessment) => ({
+        ...assessment,
+        status: statusToUse[assessment._id]?.status || "notCompleted",
+        isCompleted: statusToUse[assessment._id]?.isCompleted || false,
+        inProgress: statusToUse[assessment._id]?.inProgress || false,
+        notCompleted: statusToUse[assessment._id]?.notCompleted || true,
+        progress: statusToUse[assessment._id]?.progress || 0,
+        completedExamsCount:
+          statusToUse[assessment._id]?.completedExamsCount || 0,
+        totalExamsRequired:
+          statusToUse[assessment._id]?.totalExamsRequired || 4,
+      }));
+
+      // Append new data to existing assessments
+      setAssessments((prevAssessments) => [
+        ...prevAssessments,
+        ...assessmentsWithStatus,
+      ]);
+
+      // Update pagination info
+      const totalAssessments = response.totalAssessments || data.length;
+      let calculatedTotalPages =
+        response.totalPages || Math.ceil(totalAssessments / limit);
+
+      if (
+        !calculatedTotalPages ||
+        calculatedTotalPages < 1 ||
+        isNaN(calculatedTotalPages)
+      ) {
+        calculatedTotalPages = 1;
+      }
+
+      setTotalItems(totalAssessments);
+      setTotalPages(calculatedTotalPages);
+      setHasMore(currentPage < calculatedTotalPages);
+    } catch (error) {
+      console.error("Error fetching assessments for load more:", error);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch completed assessments for load more - append to existing data
+  const fetchCompletedAssessmentsLoadMore = async (currentPage = 1) => {
+    setLoading(true);
+    try {
+      const response = await getCompletedAssessments(currentPage, limit);
+      const data = response.data || [];
+
+      // Append new data to existing completed assessments
+      setCompletedAssessments((prevCompleted) => [...prevCompleted, ...data]);
+
+      // Update pagination info
+      const totalCompletedAssessments = response.totalItems || data.length;
+      let calculatedTotalPages =
+        response.totalPages || Math.ceil(totalCompletedAssessments / limit);
+
+      if (
+        !calculatedTotalPages ||
+        calculatedTotalPages < 1 ||
+        isNaN(calculatedTotalPages)
+      ) {
+        calculatedTotalPages = 1;
+      }
+
+      setTotalItems(totalCompletedAssessments);
+      setTotalPages(calculatedTotalPages);
+      setHasMore(currentPage < calculatedTotalPages);
+    } catch (error) {
+      console.error(
+        "Error fetching completed assessments for load more:",
+        error
+      );
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch completion status for all assessments
   const fetchCompletionStatus = async () => {
@@ -194,6 +301,7 @@ export default function ExamListPage() {
     initializeData();
     setPage(1);
     setInputValue("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   // Handle tab change
@@ -226,6 +334,28 @@ export default function ExamListPage() {
     } else {
       // Tab "Đã làm" - không hỗ trợ search
       fetchCompletedAssessments(newPage);
+    }
+  };
+
+  // Handle load more - append data to existing list
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+
+    if (activeTab === 0) {
+      // Tab "Tất cả" - append to existing assessments
+      if (Object.keys(completionStatus).length === 0) {
+        fetchCompletionStatus().then((statusData) => {
+          const query = inputValue.trim() === "" ? "" : inputValue.trim();
+          fetchAssessmentsLoadMore(query, nextPage, statusData);
+        });
+      } else {
+        const query = inputValue.trim() === "" ? "" : inputValue.trim();
+        fetchAssessmentsLoadMore(query, nextPage);
+      }
+    } else {
+      // Tab "Đã làm" - append to existing completed assessments
+      fetchCompletedAssessmentsLoadMore(nextPage);
     }
   };
 
@@ -601,11 +731,22 @@ export default function ExamListPage() {
         )}
 
         {/* Pagination */}
-        {!loading && totalPages > 1 && (
+        {/* {!loading && totalPages > 1 && (
           <ExamPagination
             page={page}
             totalPages={totalPages}
             onPageChange={handlePageChange}
+          />
+        )} */}
+
+        {/* Load More Button */}
+        {!loading && hasMore && (
+          <LoadMore
+            onLoadMore={handleLoadMore}
+            hasMore={hasMore}
+            loading={loading}
+            currentPage={page}
+            totalPages={totalPages}
           />
         )}
       </Box>

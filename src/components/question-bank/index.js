@@ -20,6 +20,7 @@ import { getAllQuestionsByCategory } from "../../services/QuestionBankService";
 import { toast } from "react-toastify";
 import Header from "../Header";
 import { useNavigate } from "react-router-dom";
+import CustomTestModal from "./CustomTestModal";
 
 // Styled components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -69,6 +70,7 @@ export default function QuestionBankMain() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [customTestModalOpen, setCustomTestModalOpen] = useState(false);
 
   useEffect(() => {
     const loadQuestionBank = async () => {
@@ -124,6 +126,7 @@ export default function QuestionBankMain() {
   };
 
   const handlePracticeSpecific = (subject, childCategory) => {
+    localStorage.removeItem("customExamData");
     const params = new URLSearchParams({
       subject: subject,
       questionType: childCategory,
@@ -288,6 +291,36 @@ export default function QuestionBankMain() {
                 </Grid>
               </Fade>
             )}
+
+            {/* Create Custom Test Button */}
+            <Fade in={true} timeout={1200}>
+              <Box sx={{ textAlign: "center", mb: 4 }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => setCustomTestModalOpen(true)}
+                  sx={{
+                    borderRadius: 3,
+                    px: 6,
+                    py: 2,
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    background:
+                      "linear-gradient(45deg, #667eea 30%, #764ba2 90%)",
+                    boxShadow: "0 6px 20px rgba(102, 126, 234, 0.4)",
+                    "&:hover": {
+                      background:
+                        "linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)",
+                      boxShadow: "0 8px 25px rgba(102, 126, 234, 0.6)",
+                      transform: "translateY(-2px)",
+                    },
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  {t("questionBank.createCustomTest")}
+                </Button>
+              </Box>
+            </Fade>
 
             {/* Subjects */}
             {data?.subjects &&
@@ -636,6 +669,13 @@ export default function QuestionBankMain() {
           </Box>
         </Container>
       </Box>
+
+      {/* Custom Test Modal */}
+      <CustomTestModal
+        open={customTestModalOpen}
+        onClose={() => setCustomTestModalOpen(false)}
+        data={data}
+      />
     </>
   );
 }

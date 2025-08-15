@@ -105,6 +105,13 @@ export default function QuestionsTable({
           boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
           overflowX: "auto",
           overflowY: "hidden",
+          "& .MuiTable-root": {
+            border: "none !important",
+          },
+          "& .MuiTableCell-root": {
+            border: "none !important",
+            borderBottom: "1px solid rgba(224, 224, 224, 1) !important",
+          },
           "&::-webkit-scrollbar": {
             width: "8px",
             height: "8px",

@@ -17,10 +17,12 @@ import {
 } from "@mui/material";
 import { ArrowBack, BugReport, PlayArrow, Shuffle } from "@mui/icons-material";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { toast } from "react-toastify";
 import Loading from "../Loading";
 import PracticeSectionTabs from "./components/PracticeSectionTabs";
 import PracticePageSizeControls from "./components/PracticePageSizeControls";
 import PracticeQuestionsTable from "./components/PracticeQuestionsTable";
+import { getIncorrectQuestions } from "../../services/PracticeResultService";
 
 export default function PracticeErrorMain() {
   const { t } = useLanguage();
@@ -81,166 +83,60 @@ export default function PracticeErrorMain() {
   const fetchErrorLogs = async () => {
     try {
       setLoading(true);
-      // Simulate API delay
-      setTimeout(() => {
-        // Fake data for error logs
-        const fakeData = [
-          {
-            _id: "1",
-            questionData: {
-              question: "If 3x + 5 = 14, what is the value of x?",
-              section: "TOÁN",
-              answers: {
-                a: "2",
-                b: "3",
-                c: "4",
-                d: "5",
-              },
-              correctAnswer: "b",
-            },
-            selectedAnswer: "a",
-            isCorrect: false,
-            note: "Forgot to subtract 5 from both sides first",
-          },
-          {
-            _id: "2",
-            questionData: {
-              question:
-                "Which of the following best describes the author's tone in the passage?",
-              section: "TIẾNG ANH",
-              answers: {
-                a: "Optimistic",
-                b: "Critical",
-                c: "Neutral",
-                d: "Enthusiastic",
-              },
-              correctAnswer: "b",
-            },
-            selectedAnswer: "a",
-            isCorrect: false,
-            note: "Need to pay more attention to negative words in the passage",
-          },
-          {
-            _id: "3",
-            questionData: {
-              question: "The function f(x) = 2x² - 4x + 1. What is f(3)?",
-              section: "TOÁN",
-              answers: {
-                a: "7",
-                b: "11",
-                c: "15",
-                d: "19",
-              },
-              correctAnswer: "a",
-            },
-            selectedAnswer: "b",
-            isCorrect: false,
-            note: "Made calculation error: 2(9) - 4(3) + 1 = 18 - 12 + 1 = 7",
-          },
-          {
-            _id: "4",
-            questionData: {
-              question:
-                "Based on the graph, what is the relationship between variables x and y?",
-              section: "TIẾNG ANH",
-              answers: {
-                a: "Directly proportional",
-                b: "Inversely proportional",
-                c: "No relationship",
-                d: "Exponential growth",
-              },
-              correctAnswer: "a",
-            },
-            selectedAnswer: "c",
-            isCorrect: false,
-            note: "Need to practice reading graphs more carefully",
-          },
-          {
-            _id: "5",
-            questionData: {
-              question: "Solve for y: 2y - 7 = 3y + 2",
-              section: "TOÁN",
-              answers: {
-                a: "-9",
-                b: "-5",
-                c: "5",
-                d: "9",
-              },
-              correctAnswer: "a",
-            },
-            selectedAnswer: "d",
-            isCorrect: false,
-            note: "Wrong sign when moving terms: 2y - 3y = 2 + 7, so -y = 9, therefore y = -9",
-          },
-          {
-            _id: "6",
-            questionData: {
-              question:
-                "The author uses the phrase 'a double-edged sword' to suggest that technology:",
-              section: "TIẾNG ANH",
-              answers: {
-                a: "Is always beneficial",
-                b: "Has both positive and negative effects",
-                c: "Is dangerous",
-                d: "Should be avoided",
-              },
-              correctAnswer: "b",
-            },
-            selectedAnswer: "c",
-            isCorrect: false,
-            note: "Double-edged sword means having both advantages and disadvantages",
-          },
-          {
-            _id: "7",
-            questionData: {
-              question:
-                "If the area of a square is 64 square units, what is its perimeter?",
-              section: "TOÁN",
-              answers: {
-                a: "16",
-                b: "24",
-                c: "32",
-                d: "64",
-              },
-              correctAnswer: "c",
-            },
-            selectedAnswer: "a",
-            isCorrect: false,
-            note: "Side length = √64 = 8, so perimeter = 4 × 8 = 32",
-          },
-          {
-            _id: "8",
-            questionData: {
-              question:
-                "Which transition word best connects these two sentences in the passage?",
-              section: "TIẾNG ANH",
-              answers: {
-                a: "However",
-                b: "Therefore",
-                c: "Furthermore",
-                d: "Meanwhile",
-              },
-              correctAnswer: "a",
-            },
-            selectedAnswer: "c",
-            isCorrect: false,
-            note: "The second sentence contrasts with the first, so 'However' is correct",
-          },
-        ];
 
-        setData(fakeData);
-        setLoading(false);
-      }, 1000);
+      // Call the API to get incorrect questions
+      const response = await getIncorrectQuestions();
+
+      if (response?.data) {
+        // Transform API data to match the component's expected format
+        const transformedData = response.data.map((item) => {
+          return {
+            _id: item._id,
+            questionData: {
+              question: item.questionId?.contentQuestion || "",
+              section:
+                item.questionId?.subject === "MATH" ? "TOÁN" : "TIẾNG ANH",
+              answers: {
+                a: item.questionId?.contentAnswer?.contentAnswerA || "",
+                b: item.questionId?.contentAnswer?.contentAnswerB || "",
+                c: item.questionId?.contentAnswer?.contentAnswerC || "",
+                d: item.questionId?.contentAnswer?.contentAnswerD || "",
+              },
+              correctAnswer: item.questionId?.correctAnswer || "",
+            },
+            selectedAnswer:
+              item.userAnswer || item.selectedAnswer || item.answerChosen || "",
+            isCorrect: item.isCorrect || false,
+            note: item.note || "",
+            // Additional fields that might be useful
+            difficulty: item.questionId?.difficulty || "",
+            questionType: item.questionId?.questionType?.text || "",
+            questionTypeCode: item.questionId?.questionType?.code || "",
+            createdAt: item.createdAt || "",
+            status: item.status || "need_to_review",
+          };
+        });
+
+        setData(transformedData);
+      } else {
+        // If no data or API returns empty
+        setData([]);
+        toast.info(
+          t("practice.noIncorrectQuestions") ||
+            "Không có câu hỏi sai nào được tìm thấy"
+        );
+      }
     } catch (error) {
-      console.error("Error fetching error logs:", error);
+      toast.error(t("Có lỗi xảy ra khi tải dữ liệu"));
       setData([]);
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchErrorLogs();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleBackClick = () => {
     navigate("/practice");
@@ -449,7 +345,7 @@ export default function PracticeErrorMain() {
                 pageSize={pageSize}
                 onPageChange={setPage}
                 totalItems={filteredData.length}
-                // onRefresh={fetchErrorLogs}
+                onRefresh={fetchErrorLogs}
               />
             )}
           </Box>

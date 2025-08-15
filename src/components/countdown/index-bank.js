@@ -11,18 +11,33 @@ const CountdownPageBank = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Clear any existing exam data from localStorage
-    clearExamLocalStorage();
+    // Check if we have custom exam data
+    const customExamData = localStorage.getItem("customExamData");
 
-    // Save exam start time when countdown begins
+    if (customExamData) {
+      // We have custom exam data, proceed with custom exam flow
+      // Clear any existing exam data from localStorage
+      clearExamLocalStorage();
 
-    const timer = setTimeout(() => {
-      // Navigate to exam page after 5 seconds
-      navigate(`/exam-bank/?${searchParams.toString()}`);
-    }, 5000);
+      const timer = setTimeout(() => {
+        // Navigate to practice exam page for custom test
+        navigate("/exam-bank");
+      }, 5000);
 
-    return () => clearTimeout(timer);
-  }, [navigate]);
+      return () => clearTimeout(timer);
+    } else {
+      // Regular exam flow
+      // Clear any existing exam data from localStorage
+      clearExamLocalStorage();
+
+      const timer = setTimeout(() => {
+        // Navigate to exam page after 5 seconds
+        navigate(`/exam-bank/?${searchParams.toString()}`);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [navigate, searchParams]);
 
   return (
     <Box

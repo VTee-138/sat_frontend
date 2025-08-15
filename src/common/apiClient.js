@@ -37,7 +37,6 @@ apiClient.interceptors.response.use(
       if (error.response.status === 401) {
         // if (!auth) {
         // Ví dụ: redirect đến trang login
-        window.location.href = "/login";
         localStorage.removeItem("jwt");
         localStorage.removeItem("user");
         // }
